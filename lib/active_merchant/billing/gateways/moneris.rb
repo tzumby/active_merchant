@@ -120,6 +120,17 @@ module ActiveMerchant #:nodoc:
         commit 'refund', crediting_params(authorization, :amount => amount(money))
       end
 
+      # Returns a permanent credit card token given a temporary token
+      # The temporary token is returned by the Moneris API when using Tokenized Credit Card
+      # transactions and it is only valid for 15 minutes
+      def add_token(datakey, options = {})
+        post = {}
+        post[:data_key] = datakey
+        post[:crypt_type] = options[:crypt_type] || @options[:crypt_type]
+        action = 'res_add_token'
+        commit(action, post)
+      end
+
       def store(credit_card, options = {})
         post = {}
         post[:pan] = credit_card.number
@@ -190,7 +201,7 @@ module ActiveMerchant #:nodoc:
         url = test? ? self.test_url : self.live_url
         raw = ssl_post(url, data)
         response = parse(raw)
-
+binding.pry
         Response.new(successful?(response), message_from(response[:message]), response,
           :test          => test?,
           :avs_result    => { :code => response[:avs_result_code] },
@@ -298,6 +309,7 @@ module ActiveMerchant #:nodoc:
           "opentotals"         => [:ecr_number],
           "batchclose"         => [:ecr_number],
           "res_add_cc"         => [:pan, :expdate, :crypt_type],
+          "res_add_token"      => [:data_key, :crypt_type],
           "res_delete"         => [:data_key],
           "res_update_cc"      => [:data_key, :pan, :expdate, :crypt_type],
           "res_purchase_cc"    => [:data_key, :order_id, :cust_id, :amount, :crypt_type],

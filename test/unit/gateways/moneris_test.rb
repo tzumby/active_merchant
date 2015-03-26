@@ -419,6 +419,82 @@ class MonerisTest < Test::Unit::TestCase
     RESPONSE
   end
 
+  def successful_add_token_response
+    <<-RESPONSE
+<?xml version="1.0"?>esponse>
+    <receipt>
+      <DataKey>5KNFinuKcQyxh2V4KjbNVNpaY</DataKey>
+      <ReceiptId>null</ReceiptId>
+      <ReferenceNum>null</ReferenceNum>
+      <ResponseCode>001</ResponseCode>
+      <ISO>null</ISO>
+      <AuthCode>null</AuthCode>
+      <Message>Successfully registered CC details.</Message>
+      <TransTime>13:58:57</TransTime>
+      <TransDate>2015-03-26</TransDate>
+      <TransType>null</TransType>
+      <Complete>true</Complete>
+      <TransAmount>null</TransAmount>
+      <CardType>null</CardType>
+      <TransID>null</TransID>
+      <TimedOut>false</TimedOut>
+      <CorporateCard>null</CorporateCard>
+      <RecurSuccess>null</RecurSuccess>
+      <AvsResultCode>null</AvsResultCode>
+      <CvdResultCode>null</CvdResultCode>
+      <ResSuccess>true</ResSuccess>
+      <PaymentType>cc</PaymentType>
+      <IsVisaDebit>null</IsVisaDebit>
+      <ResolveData>
+        <cust_id></cust_id>
+        <phone></phone>
+        <email></email>
+        <note></note>
+        <crypt_type>7</crypt_type>
+        <masked_pan>4242***4242</masked_pan>
+        <expdate>0</expdate>
+      </ResolveData>
+
+   </receipt>
+  </response>
+
+    RESPONSE
+  end
+
+  def failed_add_token_response
+    <<-RESPONSE
+<?xml version="1.0"?>
+  <response>
+    <receipt>
+      <DataKey>null</DataKey>
+      <ReceiptId>null</ReceiptId>
+      <ReferenceNum>null</ReferenceNum>
+      <ResponseCode>983</ResponseCode>
+      <ISO>null</ISO>
+      <AuthCode>null</AuthCode>
+      <Message>Can not find previous</Message>
+      <TransTime>null</TransTime>
+      <TransDate>null</TransDate>
+      <TransType>null</TransType>
+      <Complete>false</Complete>
+      <TransAmount>null</TransAmount>
+      <CardType>null</CardType>
+      <TransID>null</TransID>
+      <TimedOut>false</TimedOut>
+      <CorporateCard>null</CorporateCard>
+      <RecurSuccess>null</RecurSuccess>
+      <AvsResultCode>null</AvsResultCode>
+      <CvdResultCode>null</CvdResultCode>
+      <ResSuccess>false</ResSuccess>
+      <PaymentType>null</PaymentType>
+      <IsVisaDebit>null</IsVisaDebit>
+      <ResolveData>null</ResolveData>
+    </receipt>
+  </response>
+    RESPONSE
+  end
+
+
   def xml_purchase_fixture
    '<request><store_id>store1</store_id><api_token>yesguy</api_token><purchase><amount>1.01</amount><pan>4242424242424242</pan><expdate>0303</expdate><crypt_type>7</crypt_type><order_id>order1</order_id></purchase></request>'
   end

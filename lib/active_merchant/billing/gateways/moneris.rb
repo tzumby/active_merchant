@@ -131,6 +131,14 @@ module ActiveMerchant #:nodoc:
         commit 'refund', crediting_params(authorization, :amount => amount(money))
       end
 
+      # Returns the masked credit card number given a data key
+      def lookup_masked(data_key, options = {})
+        post = {}
+        post[:data_key] = data_key
+        action = 'res_lookup_masked'
+        commit(action, post)
+      end
+
       def store(credit_card, options = {})
         post = {}
         post[:pan] = credit_card.number
@@ -201,7 +209,7 @@ module ActiveMerchant #:nodoc:
         url = test? ? self.test_url : self.live_url
         raw = ssl_post(url, data)
         response = parse(raw)
-
+        
         Response.new(successful?(response), message_from(response[:message]), response,
           :test          => test?,
           :avs_result    => { :code => response[:avs_result_code] },
@@ -234,6 +242,9 @@ module ActiveMerchant #:nodoc:
         xml = REXML::Document.new(xml)
         return if xml.root.nil?
         xml.elements.each('//receipt/*') do |node|
+          node.elements.each('//ResolveData/*') do |resolve_data|
+            response[resolve_data.name.underscore.to_sym] = normalize(resolve_data.text)
+          end
           response[node.name.underscore.to_sym] = normalize(node.text)
         end
       end
@@ -313,7 +324,8 @@ module ActiveMerchant #:nodoc:
           "res_delete"         => [:data_key],
           "res_update_cc"      => [:data_key, :pan, :expdate, :crypt_type],
           "res_purchase_cc"    => [:data_key, :order_id, :cust_id, :amount, :crypt_type],
-          "res_preauth_cc"     => [:data_key, :order_id, :cust_id, :amount, :crypt_type]
+          "res_preauth_cc"     => [:data_key, :order_id, :cust_id, :amount, :crypt_type],
+          "res_lookup_masked"  => [:data_key]
         }
       end
     end

@@ -13,6 +13,7 @@ class MonerisTest < Test::Unit::TestCase
 
     @amount = 100
     @credit_card = credit_card('4242424242424242')
+    @data_key = "QfQApS75kCQmEZOxP4XhgWFSM"
     @options = { :order_id => '1', :customer => '1', :billing_address => address}
   end
 
@@ -22,6 +23,22 @@ class MonerisTest < Test::Unit::TestCase
     assert_equal "yesguy", @gateway.options[:password]
   end
 
+  def test_successful_lookup_masked
+    @gateway.expects(:ssl_post).returns(successful_lookup_masked_response)
+
+    assert response = @gateway.lookup_masked(@data_key)
+    assert_success response
+    assert_equal "001", response.params["response_code"]
+    assert_equal "Successfully located cc details", response.message
+  end
+ 
+  def test_failed_lookup_masked
+    @gateway.expects(:ssl_post).returns(failed_lookup_masked_response)
+
+    assert response = @gateway.lookup_masked("wrong_data_key")
+    assert_failure response
+  end
+ 
   def test_successful_purchase
     @gateway.expects(:ssl_post).returns(successful_purchase_response)
 
@@ -296,6 +313,81 @@ class MonerisTest < Test::Unit::TestCase
   end
 
   private
+
+  def successful_lookup_masked_response
+    <<-RESPONSE
+<?xml version="1.0"?>
+  <response>
+    <receipt>
+      <DataKey>QfQApS75kCQmEZOxP4XhgWFSM</DataKey>
+      <ReceiptId>null</ReceiptId>
+      <ReferenceNum>null</ReferenceNum>
+      <ResponseCode>001</ResponseCode>
+      <ISO>null</ISO>
+      <AuthCode>null</AuthCode>
+      <Message>Successfully located CC details.</Message>
+      <TransTime>10:33:33</TransTime>
+      <TransDate>2015-03-27</TransDate>
+      <TransType>null</TransType>
+      <Complete>true</Complete>
+      <TransAmount>null</TransAmount>
+      <CardType>null</CardType>
+      <TransID>null</TransID>
+      <TimedOut>false</TimedOut>
+      <CorporateCard>null</CorporateCard>
+      <RecurSuccess>null</RecurSuccess>
+      <AvsResultCode>null</AvsResultCode>
+      <CvdResultCode>null</CvdResultCode>
+      <ResSuccess>true</ResSuccess>
+      <PaymentType>cc</PaymentType>
+      <IsVisaDebit>null</IsVisaDebit>
+      <ResolveData>
+        <cust_id></cust_id>
+        <phone></phone>
+        <email></email>
+        <note></note>
+        <expdate>1611</expdate>
+        <masked_pan>4242***4242</masked_pan>
+        <crypt_type>7</crypt_type>
+      </ResolveData>
+    </receipt>
+  </response>
+
+    RESPONSE
+  end
+
+  def failed_lookup_masked_response
+    <<-RESPONSE
+<?xml version="1.0"?>
+  <response>
+    <receipt>
+      <DataKey>null</DataKey>
+      <ReceiptId>null</ReceiptId>
+      <ReferenceNum>null</ReferenceNum>
+      <ResponseCode>983</ResponseCode>
+      <ISO>null</ISO>
+      <AuthCode>null</AuthCode>
+      <Message>Can not find previous</Message>
+      <TransTime>null</TransTime>
+      <TransDate>null</TransDate>
+      <TransType>null</TransType>
+      <Complete>false</Complete>
+      <TransAmount>null</TransAmount>
+      <CardType>null</CardType>
+      <TransID>null</TransID>
+      <TimedOut>false</TimedOut>
+      <CorporateCard>null</CorporateCard>
+      <RecurSuccess>null</RecurSuccess>
+      <AvsResultCode>null</AvsResultCode>
+      <CvdResultCode>null</CvdResultCode>
+      <ResSuccess>false</ResSuccess>
+      <PaymentType>null</PaymentType>
+      <IsVisaDebit>null</IsVisaDebit>
+      <ResolveData>null</ResolveData>
+    </receipt>
+  </response>
+    RESPONSE
+  end
 
   def successful_purchase_response
     <<-RESPONSE
